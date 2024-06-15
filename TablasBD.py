@@ -5,7 +5,7 @@ conn = psycopg2.connect(
     host = 'localhost',
     user= 'postgres',
     dbname = 'tarea2',
-    password = 'Bacilio01',
+    password = '', #contraseña
     port = '5432'
 )
 print("Conexion Exitosa")
