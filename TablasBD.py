@@ -19,7 +19,8 @@ create_tables_queries = [
     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     nombre VARCHAR(35) NOT NULL,
     direccion_correo VARCHAR(255) UNIQUE NOT NULL,
-    contraseña TEXT NOT NULL
+    contraseña TEXT NOT NULL,
+    es_admin BOOLEAN NOT NULL DEFAULT FALSE 
 );
 
 CREATE TABLE IF NOT EXISTS correos (
