@@ -14,6 +14,7 @@ model Usuario {
   nombre             String
   direccion_correo   String   @unique
   pass               String
+  esadmin            Boolean
 }
 
 model Correos {
