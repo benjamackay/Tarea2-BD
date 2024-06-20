@@ -7,38 +7,49 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Usuario {
-  id_usuario         Int      @id @default(autoincrement())
-  descripcion        String?
-  fecha_creacion     DateTime @default(now())
-  nombre             String
-  direccion_correo   String   @unique
-  pass               String
-  esadmin            Boolean
+model correos {
+  id_correo                               Int                @id @default(autoincrement())
+  remitente                               Int
+  destinatario                            Int
+  asunto                                  String?            @db.VarChar(255)
+  cuerpo                                  String
+  fecha_envio                             DateTime?          @default(now()) @db.Timestamp(6)
+  leido                                   Boolean?           @default(false)
+  es_favorito                             Boolean?           @default(false)
+  usuarios_correos_destinatarioTousuarios usuarios           @relation("correos_destinatarioTousuarios", fields: [destinatario], references: [id_usuario], onDelete: NoAction, onUpdate: NoAction)
+  usuarios_correos_remitenteTousuarios    usuarios           @relation("correos_remitenteTousuarios", fields: [remitente], references: [id_usuario], onDelete: NoAction, onUpdate: NoAction)
+  correosfavoritos                        correosfavoritos[]
 }
 
-model Correos {
-  id_correo     Int         @id @default(autoincrement())
-  remitente     String
-  destinatario  String
-  asunto        String
-  cuerpo        String
-  fecha_envio   DateTime    @default(now())
-  leido         Boolean
-  es_favorito   Boolean
+model correosfavoritos {
+  id_correo_favorito Int       @id @default(autoincrement())
+  usuario_id         Int
+  correo_id          Int
+  fecha_anadido      DateTime? @default(now()) @db.Timestamp(6)
+  correos            correos   @relation(fields: [correo_id], references: [id_correo], onDelete: NoAction, onUpdate: NoAction)
+  usuarios           usuarios  @relation(fields: [usuario_id], references: [id_usuario], onDelete: NoAction, onUpdate: NoAction)
 }
 
-model Usuariosbloqueados {
-  usuarioid             Int
-  usuariobloqueado     Int
-  fechabloqueo          DateTime    @default(now())
-  @@id([usuarioid, usuariobloqueado])
-  }
+model usuarios {
+  id_usuario                                                        Int                  @id @default(autoincrement())
+  descripcion                                                       String?              @db.VarChar(255)
+  fecha_creacion                                                    DateTime             @default(now()) @db.Timestamp(6)
+  nombre                                                            String               @db.VarChar(35)
+  direccion_correo                                                  String               @unique @db.VarChar(255)
+  contrase_a                                                        String               @map("contraseña")
+  es_admin                                                          Boolean?             @default(false)
+  correos_correos_destinatarioTousuarios                            correos[]            @relation("correos_destinatarioTousuarios")
+  correos_correos_remitenteTousuarios                               correos[]            @relation("correos_remitenteTousuarios")
+  correosfavoritos                                                  correosfavoritos[]
+  usuariosbloqueados_usuariosbloqueados_usuario_bloqueadoTousuarios usuariosbloqueados[] @relation("usuariosbloqueados_usuario_bloqueadoTousuarios")
+  usuariosbloqueados_usuariosbloqueados_usuario_idTousuarios        usuariosbloqueados[] @relation("usuariosbloqueados_usuario_idTousuarios")
+}
 
-model Correosfavoritos {
-  usuarioid            Int
-  correosfavoritos     String
-  fecha_anadido       DateTime @default(now())
-  @@id([usuarioid, correosfavoritos])
-
+model usuariosbloqueados {
+  id_bloqueado                                            Int       @id @default(autoincrement())
+  usuario_bloqueado                                       Int
+  usuario_id                                              Int
+  fecha_bloqueo                                           DateTime? @default(now()) @db.Timestamp(6)
+  usuarios_usuariosbloqueados_usuario_bloqueadoTousuarios usuarios  @relation("usuariosbloqueados_usuario_bloqueadoTousuarios", fields: [usuario_bloqueado], references: [id_usuario], onDelete: NoAction, onUpdate: NoAction)
+  usuarios_usuariosbloqueados_usuario_idTousuarios        usuarios  @relation("usuariosbloqueados_usuario_idTousuarios", fields: [usuario_id], references: [id_usuario], onDelete: NoAction, onUpdate: NoAction)
 }
