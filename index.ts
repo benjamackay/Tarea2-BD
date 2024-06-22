@@ -33,6 +33,29 @@ app.post('/api/registrar', async ({ body }: { body: UserBody }) => {
   }
 });
 
+
+
+/* GET para login */
+app.get('/api/login/:correo&:clave', async ({ params }: { params: { correo: string, clave: string } }) => {
+  const { correo, clave } = params;
+  try {
+    const logear = await prisma.usuarios.findUnique({
+      where: {
+        direccion_correo: correo,
+        contrase_a: clave,
+      },
+    });
+
+    if (!logear) {
+      return { status: 404, body: { error: "Usuario no registrado" } };
+    } else {
+      return { status: 200, body: logear };
+    }
+  } catch (error: any) {
+    return { status: 500, body: { error: error.message || 'Error al intentar realizar el login' } };
+  }
+});
+
 interface BloqUser {
   correo: string,
   clave: string,
