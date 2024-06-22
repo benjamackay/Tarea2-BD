@@ -19,11 +19,11 @@ app.get('/', ()=>'Hello Elysia');
 app.post('/api/registrar', async ({ body }: { body: UserBody }) => {
   const { name, address, pass, description } = body;
   try {
-    const usuario = await prisma.usuario.create({
+    const usuario = await prisma.usuarios.create({
       data: {
         nombre: name,
         direccion_correo: address,
-        pass: pass,
+        contrase_a: pass,
         descripcion: description,
       },
     });
@@ -35,20 +35,20 @@ app.post('/api/registrar', async ({ body }: { body: UserBody }) => {
 
 interface BloqUser {
   correo: string,
-  pass: string,
+  clave: string,
   correo_bloquear: string,
 }
 
 
 /*POST para bloquear el correo de otros usuarios*/
-app.post('api/bloquear', async({body}:{body: BloqUser})=>{
-  const {correo, pass, correo_bloquear} = body;
+app.post('/api/bloquear', async ({ body }: { body: BloqUser }) => {
+  const { correo, clave, correo_bloquear } = body;
   try {
-    const usuariobloqueado = await prisma.usuariobloqueado.create({
+    const usuariobloqueado = await prisma.usuarios_bloqueados.create({
       data: {
         correo: correo,
-        pass: pass,
-        correo_bloquear: correo_bloquear,
+        clave : clave,
+        correo_bloqueado: correo_bloquear,
       },
     });
     return { status: 201, body: usuariobloqueado };
@@ -61,7 +61,7 @@ app.post('api/bloquear', async({body}:{body: BloqUser})=>{
 app.get('/api/informacion/:correo', async ({ params }: { params: { correo: string } }) => {
   const { correo } = params;
   try {
-    const informacion = await prisma.usuario.findUnique({
+    const informacion = await prisma.usuarios.findUnique({
       where: {
         direccion_correo: correo,
       },
@@ -71,29 +71,30 @@ app.get('/api/informacion/:correo', async ({ params }: { params: { correo: strin
       return { status: 404, body: { error: 'No se encontró la información del usuario' } };
     }
 
-    const { nombre, descripcion } = informacion;
+    const { nombre, direccion_correo, descripcion } = informacion;
 
-    return { status: 200, body: { nombre, correo, descripcion } };
+    return { status: 200, body: { nombre, direccion_correo, descripcion } };
   } catch (error: any) {
     return { status: 500, body: { error: error.message || 'Error al buscar la información del usuario' } };
   }
 });
 
-interface MarcarCorreo{
+interface MarcarCorreo {
   correo: string,
   clave: string,
-  id_correo_favorito: Int16Array,
+  id_correo: number,
+  id_correo_favorito: number,
 }
 
-/*POST para marcar un correo como favorito*/
-app.post('api/marcarcorreo', async({body}:{body:MarcarCorreo})=> {
-  const {correo, clave, id_correo_favorito} = body;
-  try{
-    const correo_favorito = await prisma.correo_favorito.create({
+/*POST para marcar correo favorito*/
+app.post('/api/marcarcorreo', async ({ body }: { body: MarcarCorreo }) => {
+  const { correo, clave, id_correo} = body;
+  try {
+    const correo_favorito = await prisma.correos_favoritos.create({
       data: {
-        correo: correo,
-        pass: clave,
-        id_correo_favorito: id_correo_favorito,
+        direccion_correo: correo,
+        clave: clave,
+        id_correo: id_correo,
       },
     });
     return { status: 201, body: correo_favorito };
@@ -102,30 +103,38 @@ app.post('api/marcarcorreo', async({body}:{body:MarcarCorreo})=> {
   }
 });
 
-/*DELETE para desmarcar un correo de favoritos */
-app.delete('api/desmarcarcorreo', async({body}: {body:MarcarCorreo})=>{
-  const { correo, clave, id_correo_favorito} = body;
-  try{
-    const correo_favorito = await prisma.correo_favorito.findUnique({
+/*DELETE para desmarcar correo*/
+app.delete('/api/desmarcarcorreo', async ({ body }: { body: MarcarCorreo }) => {
+  const { correo, clave, id_correo, id_correo_favorito} = body;
+  try {
+    const correo_favorito = await prisma.correos_favoritos.findUnique({
       where: {
-        correo: correo,
+        direccion_correo: correo,
+        id_correo: id_correo,
         clave: clave,
         id_correo_favorito: id_correo_favorito,
-      }
-
+      },
     });
-  if(!correo_favorito){
-    return {status: 404, body: {error: "Correo no encontrado"}};
-  }
-  await prisma.correo_favorito.delete({
-    where: {
-      correo: correo,
-      clave: clave,
-      id_correo_favorito: id_correo_favorito,
+
+    if (!correo_favorito) {
+      return { status: 404, body: { error: "Correo no encontrado" } };
     }
-  });
-  return {status: 200, body :{message: 'Correo Desmarcado'}};
-  }catch(error:any){
-    return {status: 500, body: {error: error.message}};
+
+    await prisma.correos_favoritos.delete({
+      where: {
+        direccion_correo: correo,
+        id_correo: id_correo,
+        clave: clave,
+        id_correo_favorito: id_correo_favorito,
+      },
+    });
+
+    return { status: 200, body: { message: 'Correo Desmarcado' } };
+  } catch (error: any) {
+    return { status: 500, body: { error: error.message } };
   }
 });
+
+app.listen(3000);
+console.log("SERVIDOR ACTIVO EN PORT: 3000")
+
