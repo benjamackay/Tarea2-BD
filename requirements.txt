@@ -1,0 +1,4 @@
+bun init
+bun add prisma
+bun create elysia
+bunx prisma init --datasource-provider postgresql
