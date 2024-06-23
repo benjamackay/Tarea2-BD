@@ -1,4 +1,9 @@
-bun init
-bun add prisma
-bun create elysia
-bunx prisma init --datasource-provider postgresql
+ACLARAR QUE TODO ESTO FUE DESCARGADO/UTILIZADO DESDE WINDOWS SUBSYSTEM LINUX (WSL)
+
+"curl -fsSL https://Bun.sh/install | bash" para instalar bun
+"bun install elysia" para instalar elysia
+"bun create elysia" para crear el template de elysia
+"bun add prisma @prisma/client" para añadir prisma desde bun
+"bun x prisma init --datasource-provider postgresql" para crear nuesto scheme.prisma y .env
+"sudo apt install python3" para instalar python3 desde wsl
+"sudo apt install postgresql" para instalar postgresql desde wsl
